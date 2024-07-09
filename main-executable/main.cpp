@@ -22,7 +22,6 @@ void loadAndExecuteLibraries(const std::string& directory) {
                 std::cerr << "Warning: Could not load " << path << ": " << GetLastError() << std::endl;
                 continue;
             }
-
             typedef void (*execute_t)();
             execute_t execute = (execute_t)GetProcAddress(handle, "execute");
             if (!execute) {
@@ -30,11 +29,8 @@ void loadAndExecuteLibraries(const std::string& directory) {
                 FreeLibrary(handle);
                 continue;
             }
-
-            // Call the execute function
+            // Executing Dynamic library
             execute();
-
-            // Free the library
             FreeLibrary(handle);
         }
 #elif defined(__APPLE__) || defined(__linux__)
@@ -44,8 +40,7 @@ void loadAndExecuteLibraries(const std::string& directory) {
                 std::cerr << "Warning: Could not load " << path << ": " << dlerror() << std::endl;
                 continue;
             }
-
-            dlerror(); // Clear any existing error
+            dlerror();
             void (*execute)() = (void (*)())dlsym(handle, "execute");
             const char* dlsym_error = dlerror();
             if (dlsym_error) {
@@ -54,10 +49,8 @@ void loadAndExecuteLibraries(const std::string& directory) {
                 continue;
             }
 
-            // Call the execute function
+            // Executing Dynamic library
             execute();
-
-            // Close the handle
             dlclose(handle);
         }
 #endif
@@ -65,12 +58,9 @@ void loadAndExecuteLibraries(const std::string& directory) {
 }
 
 int main() {
-    std::string directory = "./"; // Directory containing .dylib files
+    // Directory where the external library files are located
+    std::string directory = "./"; 
     loadAndExecuteLibraries(directory);
-
     std::cout << "Continuing execution of the program..." << std::endl;
-
-    // Your code here
-
     return 0;
 }
